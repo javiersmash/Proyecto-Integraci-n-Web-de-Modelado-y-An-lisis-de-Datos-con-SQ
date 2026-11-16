@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoundNest — Tu espacio musical</title>
+  <style>
+    :root{--bg:#090b10;--panel:#11151e;--panel2:#171d28;--text:#f5f7fb;--muted:#9ba5b5;--accent:#a78bfa;--accent2:#67e8c2;--line:#252c39;--danger:#fb7185}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+    button,input{font:inherit}button{cursor:pointer;border:0}a{color:inherit;text-decoration:none}
+    .app{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh;padding-bottom:96px}
+    aside{background:#0c0f15;border-right:1px solid var(--line);padding:25px 16px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:800;letter-spacing:-.7px;padding:0 10px 35px}
+    .logo{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b1020;font-size:22px}
+    .nav-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6f7a8b;padding:0 12px;margin:20px 0 9px}
+    .nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;color:var(--muted);background:transparent;text-align:left;margin:3px 0}
+    .nav-item:hover,.nav-item.active{background:var(--panel2);color:white}.nav-item.active{box-shadow:inset 3px 0 var(--accent)}
+    .nav-icon{width:21px;text-align:center;font-size:17px}
+    .sidebar-note{position:absolute;bottom:25px;left:20px;right:20px;border:1px solid var(--line);border-radius:15px;padding:15px;background:linear-gradient(145deg,#17152a,#11151e)}
+    .sidebar-note p{font-size:12px;line-height:1.5;color:var(--muted);margin:7px 0 12px}
+    .small-btn{background:#fff;color:#111827;border-radius:9px;padding:8px 11px;font-weight:700;font-size:12px}
+    main{min-width:0;padding:26px clamp(18px,3vw,42px) 35px}
+    .topbar{display:flex;align-items:center;gap:15px;margin-bottom:30px}
+    .search{flex:1;max-width:620px;position:relative}.search span{position:absolute;left:15px;top:11px;color:var(--muted)}
+    .search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:13px;color:white;padding:12px 15px 12px 43px;outline:none}
+    .search input:focus{border-color:var(--accent)}
+    .profile-btn{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);padding:6px 13px 6px 7px;border-radius:999px;color:var(--text);font-size:13px;transition:.18s}
+    .profile-btn:hover{border-color:var(--accent);background:var(--panel2)}
+    .avatar{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#28233d;color:#d7ccff;font-weight:800;font-size:12px}
+    .eyebrow{color:var(--accent2);font-size:12px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase}
+    h1{font-size:clamp(30px,4vw,47px);line-height:1.06;letter-spacing:-1.8px;margin:10px 0}
+    .subtitle{color:var(--muted);margin:0;line-height:1.6}
+    .hero{border:1px solid #302b4b;border-radius:23px;padding:clamp(23px,4vw,42px);background:radial-gradient(ellipse at 82% 30%,#4c3b78 0,transparent 33%),linear-gradient(115deg,#171727,#121b28 70%);position:relative;overflow:hidden;min-height:235px;display:flex;align-items:center}
+    .hero-content{max-width:550px;position:relative;z-index:1}.hero .subtitle{max-width:440px}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px}
+    .primary{background:var(--accent);color:#141022;padding:12px 17px;border-radius:12px;font-weight:800}
+    .primary:disabled{opacity:.6;cursor:not-allowed}
+    .secondary{background:#ffffff12;border:1px solid #ffffff25;color:white;padding:12px 17px;border-radius:12px;font-weight:700}
+    .hero-art{position:absolute;right:7%;top:50%;transform:translateY(-50%) rotate(-10deg);width:170px;height:170px;border-radius:35px;background:linear-gradient(135deg,#a78bfa,#67e8c2);box-shadow:0 20px 60px #0007;display:grid;place-items:center;font-size:76px}
+    section{margin-top:34px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:16px}
+    h2{font-size:21px;letter-spacing:-.5px;margin:0}.view-all{font-size:12px;color:var(--accent2);font-weight:700;background:transparent}
+    .quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .quick-card{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);padding:12px;border-radius:14px;min-width:0;text-align:left;color:white}
+    .quick-card:hover,.music-card:hover{background:#1a2130;transform:translateY(-2px)}
+    .quick-cover{width:55px;height:55px;flex-shrink:0;border-radius:11px;display:grid;place-items:center;font-size:25px}
+    .quick-card strong,.music-card strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+    .quick-card small,.music-card small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+    .cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:15px}
+    .music-card{padding:12px;border:1px solid transparent;background:transparent;border-radius:16px;min-width:0;transition:.18s}
+    .cover{width:100%;aspect-ratio:1;display:grid;place-items:center;border-radius:13px;font-size:clamp(30px,4vw,48px);margin-bottom:13px;position:relative;overflow:hidden}
+    .cover:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#ffffff24,transparent 55%,#0004);pointer-events:none}
+    .music-card .artist{color:var(--muted);font-size:12px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .play-cover{position:absolute;right:9px;bottom:9px;width:37px;height:37px;border-radius:50%;background:var(--accent2);color:#0a1517;font-size:15px;z-index:1;box-shadow:0 4px 14px #0005}
+    .track-list{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+    .track{display:grid;grid-template-columns:35px minmax(0,1fr) 100px 40px;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+    .track:last-child{border-bottom:0}.track:hover{background:#171d28}
+    .track-num{color:var(--muted);font-size:12px;text-align:center}.track-title{font-size:13px;font-weight:700}.track-artist{font-size:11px;color:var(--muted);margin-top:4px}
+    .track-album,.duration{font-size:12px;color:var(--muted)}.track button{background:transparent;color:var(--muted);font-size:18px}.track button.liked{color:var(--danger)}
+    .empty{padding:25px;color:var(--muted);text-align:center;display:none}
+    .player{position:fixed;z-index:5;bottom:0;left:0;right:0;height:84px;background:#10141df2;backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;padding:12px 24px;gap:18px}
+    .now-playing{display:flex;align-items:center;gap:11px;min-width:0}.mini-cover{width:49px;height:49px;display:grid;place-items:center;border-radius:10px;font-size:22px;flex-shrink:0}
+    .now-playing strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.now-playing small{font-size:11px;color:var(--muted);display:block;margin-top:4px}
+    .heart{color:var(--muted);background:transparent;font-size:18px}.controls{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .control-buttons{display:flex;align-items:center;gap:20px}.control-buttons button{background:transparent;color:#dce2ee;font-size:17px}.control-buttons .play{width:34px;height:34px;border-radius:50%;background:white;color:#10141d;font-size:14px}
+    .progress{display:flex;align-items:center;gap:9px;width:100%;max-width:390px;color:var(--muted);font-size:10px}.bar{height:4px;border-radius:5px;background:#343b49;flex:1;overflow:hidden}.bar-fill{height:100%;width:0;background:var(--accent2);transition:width .3s}
+    .volume{display:flex;justify-content:flex-end;align-items:center;gap:10px;color:var(--muted);font-size:14px}.volume .bar{max-width:100px;flex:0 1 100px}
+
+    /* Modales personalizados (compatibles con VS Code Simple Browser) */
+    .modal-backdrop{position:fixed;inset:0;background:#05070bcc;backdrop-filter:blur(6px);display:none;place-items:center;z-index:50;padding:16px}
+    .modal-backdrop.open{display:grid}
+    .modal{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 24px 60px #000a}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .modal-head h3{margin:0;font-size:18px}
+    .close-btn{background:transparent;color:var(--muted);font-size:20px;padding:4px 8px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#0c0f15;padding:5px;border-radius:12px;margin-bottom:16px}
+    .tab-btn{padding:9px;border-radius:9px;background:transparent;color:var(--muted);font-size:13px;font-weight:700}
+    .tab-btn.active{background:var(--panel2);color:white}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+    .field input{width:100%;background:#0c0f15;border:1px solid var(--line);border-radius:11px;color:white;padding:11px 13px;outline:none}
+    .field input:focus{border-color:var(--accent)}
+    .form-status{font-size:12px;padding:10px 12px;border-radius:10px;margin-bottom:12px;display:none;line-height:1.4}
+    .form-status.loading{display:block;background:#1e1b33;color:#d7ccff;border:1px solid #3c346b}
+    .form-status.error{display:block;background:#2c131b;color:#fda4af;border:1px solid #7f1d1d}
+    .form-status.success{display:block;background:#0f2922;color:#67e8c2;border:1px solid #115e59}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+
+    @media(max-width:1050px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-art{right:4%;width:130px;height:130px;font-size:58px}}
+    @media(max-width:720px){.app{grid-template-columns:1fr}aside{position:static;height:auto;padding:13px 15px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:0 5px 12px}.nav-label,.sidebar-note{display:none}.nav-row{display:flex;gap:5px;overflow-x:auto}.nav-item{width:auto;white-space:nowrap;padding:10px}.nav-item .nav-icon{display:none}main{padding:20px 15px}.profile-btn span{display:none}.hero-art{opacity:.25;right:-15px}.quick-grid{grid-template-columns:1fr 1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.music-card{padding:8px}.track{grid-template-columns:25px minmax(0,1fr) 35px;gap:8px;padding:11px}.track-album{display:none}.player{grid-template-columns:1fr auto;height:78px;padding:10px 13px;gap:10px}.controls{align-items:flex-end}.control-buttons{gap:13px}.progress{display:none}.volume{display:none}.now-playing{max-width:60vw}.mini-cover{width:43px;height:43px}}
+    @media(max-width:400px){.quick-grid{grid-template-columns:1fr}.quick-cover{width:44px;height:44px}.hero{padding:22px}.hero-art{display:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo">♫</div><span>SoundNest</span></div>
+    <div class="nav-label">Explorar</div>
+    <div class="nav-row">
+      <button class="nav-item active" data-target="inicio"><span class="nav-icon">⌂</span>Inicio</button>
+      <button class="nav-item" data-target="canciones"><span class="nav-icon">♫</span>Canciones</button>
+      <button class="nav-item" data-target="albumes"><span class="nav-icon">▦</span>Álbumes</button>
+      <button class="nav-item" data-target="playlists"><span class="nav-icon">☷</span>Playlists</button>
+      <button class="nav-item" data-target="favoritos"><span class="nav-icon">♡</span>Favoritos</button>
+    </div>
+    <div class="nav-label">Tu biblioteca</div>
+    <button class="nav-item" onclick="openPlaylistModal()"><span class="nav-icon">＋</span>Crear playlist</button>
+    <button class="nav-item" onclick="openAuthModal('register')"><span class="nav-icon">☺</span>Cuenta / Registro</button>
+    <div class="sidebar-note"><strong>Tu música, tu espacio.</strong><p>Crea tu usuario con cifrado bcrypt y arma tus propias listas en MySQL.</p><button class="small-btn" onclick="openAuthModal('login')">Iniciar sesión</button></div>
+  </aside>
+
+  <main id="inicio">
+    <div class="topbar">
+      <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Busca canciones, artistas, álbumes o playlists..." aria-label="Buscar música"></label>
+      <button class="profile-btn" onclick="openAuthModal('login')" title="Gestionar cuenta">
+        <div class="avatar" id="userAvatar">SN</div>
+        <span id="userDisplayName">Invitado (ID 1)</span>
+      </button>
+    </div>
+
+    <div class="hero">
+      <div class="hero-content"><div class="eyebrow">Tu universo sonoro</div><h1>Encuentra el sonido<br>que va contigo.</h1><p class="subtitle">Tus canciones favoritas, nuevos artistas y playlists para cada momento, todo conectado en tiempo real.</p><div class="hero-actions"><button class="primary" onclick="playTrack(0)">▶ Escuchar ahora</button><button class="secondary" onclick="openAuthModal('register')">Crear cuenta</button></div></div>
+      <div class="hero-art">♫</div>
+    </div>
+
+    <section>
+      <div class="section-head"><h2>Acceso rápido</h2><button class="view-all" onclick="setView('canciones')">Ver canciones ↗</button></div>
+      <div class="quick-grid" id="quickGrid"></div>
+    </section>
+
+    <section id="albumes">
+      <div class="section-head"><h2>Álbumes para descubrir</h2><button class="view-all" onclick="setView('albumes')">Ver todos ↗</button></div>
+      <div class="cards" id="albumGrid"></div>
+      <div class="empty" id="albumEmpty">No hay álbumes que coincidan con tu búsqueda.</div>
+    </section>
+
+    <section id="canciones">
+      <div class="section-head"><h2 id="songHeading">Canciones en SoundNest</h2><span class="eyebrow" id="songCountBadge">MYSQL</span></div>
+      <div class="track-list" id="trackList"></div><div class="empty" id="emptyState">No encontramos canciones para esa búsqueda.</div>
+    </section>
+
+    <section id="playlists">
+      <div class="section-head"><h2>Tus playlists</h2><button class="view-all" onclick="openPlaylistModal()">＋ Crear playlist</button></div>
+      <div class="cards" id="playlistGrid"></div>
+      <div class="empty" id="playlistEmpty">No hay playlists que coincidan con tu búsqueda.</div>
+    </section>
+
+    <section id="favoritos">
+      <div class="section-head"><h2>Tu rincón favorito</h2><span class="eyebrow">GUARDADOS</span></div>
+      <div class="track-list" id="favoriteList"></div><div class="empty" id="favoriteEmpty">Aún no has guardado canciones. Pulsa ♡ junto a una canción para añadirla aquí.</div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL: CREAR PLAYLIST (Reemplaza window.prompt) -->
+<div class="modal-backdrop" id="playlistModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="playlistModalTitle">
+    <div class="modal-head">
+      <h3 id="playlistModalTitle">Nueva playlist</h3>
+      <button class="close-btn" onclick="closeModal('playlistModal')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="form-status" id="playlistFormStatus"></div>
+    <form id="playlistForm" onsubmit="handleCreatePlaylist(event)">
+      <div class="field">
+        <label for="playlistNameInput">Nombre de la playlist</label>
+        <input id="playlistNameInput" type="text" placeholder="Ej. Programando de noche" required maxlength="150">
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:6px 0 0">Se asociará al usuario activo (<strong id="playlistOwnerLabel">ID 1</strong>).</p>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="closeModal('playlistModal')">Cancelar</button>
+        <button type="submit" class="primary" id="playlistSubmitBtn">Guardar playlist</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: REGISTRO E INICIO DE SESIÓN -->
+<div class="modal-backdrop" id="authModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="modal-head">
+      <h3 id="authModalTitle">Cuenta SoundNest</h3>
+      <button class="close-btn" onclick="closeModal('authModal')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="tabs">
+      <button type="button" class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button type="button" class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div class="form-status" id="authFormStatus"></div>
+
+    <!-- Formulario Login -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="field">
+        <label for="loginEmail">Correo electrónico</label>
+        <input id="loginEmail" type="email" placeholder="usuario@correo.com" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Contraseña</label>
+        <input id="loginPassword" type="password" placeholder="Tu contraseña" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="closeModal('authModal')">Cerrar</button>
+        <button type="submit" class="primary" id="loginSubmitBtn">Entrar</button>
+      </div>
+    </form>
+
+    <!-- Formulario Registro -->
+    <form id="registerForm" style="display:none" onsubmit="handleRegister(event)">
+      <div class="field">
+        <label for="regFirstName">Nombre *</label>
+        <input id="regFirstName" type="text" placeholder="Ej. Camila" required>
+      </div>
+      <div class="field">
+        <label for="regLastName">Apellido (opcional)</label>
+        <input id="regLastName" type="text" placeholder="Ej. Gómez">
+      </div>
+      <div class="field">
+        <label for="regEmail">Correo electrónico *</label>
+        <input id="regEmail" type="email" placeholder="camila@correo.com" required>
+      </div>
+      <div class="field">
+        <label for="regPassword">Contraseña (mínimo 8 caracteres) *</label>
+        <input id="regPassword" type="password" minlength="8" placeholder="Mínimo 8 caracteres" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="closeModal('authModal')">Cerrar</button>
+        <button type="submit" class="primary" id="registerSubmitBtn">Crear usuario</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="player">
+  <div class="now-playing"><div class="mini-cover" id="playerCover" style="background:linear-gradient(135deg,#a78bfa,#67e8c2)">♫</div><div style="min-width:0"><strong id="playerTitle">Selecciona una canción</strong><small id="playerArtist">SoundNest</small></div><button class="heart" id="playerHeart" onclick="toggleCurrentFavorite()" aria-label="Guardar favorito">♡</button></div>
+  <div class="controls"><div class="control-buttons"><button onclick="previousTrack()" aria-label="Anterior">◀◀</button><button class="play" id="playButton" onclick="togglePlay()" aria-label="Reproducir">▶</button><button onclick="nextTrack()" aria-label="Siguiente">▶▶</button></div><div class="progress"><span id="currentTime">0:00</span><div class="bar"><div class="bar-fill" id="progressFill"></div></div><span id="totalTime">0:00</span></div></div>
+  <div class="volume"><span>◖))</span><div class="bar"><div class="bar-fill" style="width:70%"></div></div></div>
+</footer>
+
+<script>
+  let songs = [];
+  let albums = [];
+  let customPlaylists = [];
+  let favorites = new Set();
+  let currentIndex = -1;
+  let isPlaying = false;
+  let currentUser = { user_id: 1, first_name: "Invitado", email: "" };
+
+  const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt = n => `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
+
+  // ==========================================
+  // ESTADOS VISIBLES (Carga, Error, Confirmación)
+  // ==========================================
+  function mostrarCarga() {
+    document.getElementById('trackList').innerHTML = '<div class="empty" style="display:block;">Cargando catálogo musical desde el servidor...</div>';
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('trackList').innerHTML = `<div class="empty" style="display:block; color:var(--danger);">Error de conexión: ${esc(mensaje)}. Verifica que Node.js y MySQL estén activos.</div>`;
+  }
+
+  function setFormStatus(elementId, type, text) {
+    const el = document.getElementById(elementId);
+    if (!type) { el.className = 'form-status'; el.textContent = ''; return; }
+    el.className = `form-status ${type}`;
+    el.textContent = text;
+  }
+
+  function mostrarNotificacion(mensaje, tipo = 'success') {
+    const bannerId = 'notification-banner';
+    let banner = document.getElementById(bannerId);
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = bannerId;
+      banner.style.cssText = "position:fixed; bottom:94px; right:20px; background:#171d28; border:1px solid var(--accent2); color:white; padding:12px 18px; border-radius:12px; z-index:999; font-size:13px; box-shadow:0 10px 30px #0008; transition: opacity 0.3s;";
+      document.body.appendChild(banner);
+    }
+    banner.style.borderColor = tipo === 'success' ? 'var(--accent2)' : 'var(--danger)';
+    banner.textContent = mensaje;
+    banner.style.opacity = '1';
+    setTimeout(() => { banner.style.opacity = '0'; }, 3500);
+  }
+
+  function updateUserUI() {
+    const initials = (currentUser.first_name || 'SN').slice(0, 2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userDisplayName').textContent = `${currentUser.first_name} (ID ${currentUser.user_id})`;
+    document.getElementById('playlistOwnerLabel').textContent = `${currentUser.first_name} · ID ${currentUser.user_id}`;
+  }
+
+  // ==========================================
+  // CONSUMO REAL DE LA API (GET)
+  // ==========================================
+  async function cargarDatosDesdeAPI() {
+    mostrarCarga();
+    try {
+      const [resSongs, resAlbums, resPlaylists] = await Promise.all([
+        fetch('/songs'),
+        fetch('/albums'),
+        fetch('/playlists')
+      ]);
+
+      if (!resSongs.ok || !resAlbums.ok || !resPlaylists.ok) {
+        throw new Error('No se pudo obtener respuesta válida de la API.');
+      }
+
+      const songsData = await resSongs.json();
+      const albumsData = await resAlbums.json();
+      const playlistsData = await resPlaylists.json();
+
+      songs = songsData.map(s => ({
+        id: s.song_id,
+        title: s.title,
+        artist: s.artist || 'Artista SoundNest',
+        album: s.album || 'Álbum General',
+        genre: s.genre || 'General',
+        duration: s.duration_seconds || 180,
+        emoji: '🎵',
+        color: 'linear-gradient(135deg,#7c3aed,#67e8c2)'
+      }));
+
+      albums = albumsData.map(a => ({
+        id: a.album_id,
+        title: a.title,
+        artist: a.artist || 'Artista',
+        emoji: '💿',
+        color: 'linear-gradient(135deg,#2563eb,#a855f7)'
+      }));
+
+      customPlaylists = playlistsData.map(p => ({
+        id: p.playlist_id,
+        title: p.name,
+        artist: `Playlist · Usuario ${p.user_id}`,
+        emoji: '🎧',
+        color: 'linear-gradient(135deg,#166534,#67e8c2)'
+      }));
+
+      renderAll();
+    } catch (err) {
+      console.error(err);
+      mostrarError(err.message);
+    }
+  }
+
+  // ==========================================
+  // BÚSQUEDA GLOBAL Y RENDERIZADO
+  // ==========================================
+  function getQuery() {
+    return document.getElementById('searchInput').value.trim().toLowerCase();
+  }
+
+  function renderAll() {
+    renderQuick();
+    renderAlbums();
+    renderPlaylists();
+    renderSongs();
+  }
+
+  function renderQuick() {
+    document.getElementById('quickGrid').innerHTML = songs.slice(0, 6).map((s, i) => `
+      <button class="quick-card" onclick="playTrack(${i})"><div class="quick-cover" style="background:${s.color}">${s.emoji}</div><div style="min-width:0"><strong>${esc(s.title)}</strong><small>${esc(s.artist)}</small></div></button>`).join('');
+  }
+
+  function renderAlbums() {
+    const q = getQuery();
+    const filtered = albums.filter(a => [a.title, a.artist].some(v => v.toLowerCase().includes(q)));
+    document.getElementById('albumGrid').innerHTML = filtered.map(a => `
+      <article class="music-card"><div class="cover" style="background:${a.color}">${a.emoji}<button class="play-cover" onclick="playAlbum('${esc(a.title)}')" aria-label="Reproducir">▶</button></div><strong>${esc(a.title)}</strong><div class="artist">${esc(a.artist)}</div></article>`).join('');
+    document.getElementById('albumEmpty').style.display = (albums.length && !filtered.length) ? 'block' : 'none';
+  }
+
+  function renderPlaylists() {
+    const q = getQuery();
+    const filtered = customPlaylists.filter(p => [p.title, p.artist].some(v => v.toLowerCase().includes(q)));
+    document.getElementById('playlistGrid').innerHTML = filtered.map((p, i) => `
+      <article class="music-card"><div class="cover" style="background:${p.color}">${p.emoji}<button class="play-cover" onclick="playTrack(${songs.length ? i % songs.length : -1})" aria-label="Reproducir">▶</button></div><strong>${esc(p.title)}</strong><div class="artist">${esc(p.artist)}</div></article>`).join('');
+    document.getElementById('playlistEmpty').style.display = (customPlaylists.length && !filtered.length) ? 'block' : 'none';
+  }
+
+  function trackRow(s, index) {
+    const originalIndex = songs.findIndex(x => x.id === s.id);
+    return `<div class="track"><div class="track-num">${String(index+1).padStart(2,'0')}</div><div style="display:flex;align-items:center;gap:11px;min-width:0"><div class="quick-cover" style="width:39px;height:39px;font-size:18px;background:${s.color}">${s.emoji}</div><div style="min-width:0"><div class="track-title">${esc(s.title)}</div><div class="track-artist">${esc(s.artist)}</div></div></div><div class="track-album">${esc(s.album)}</div><div style="display:flex;align-items:center;justify-content:flex-end;gap:12px"><button class="${favorites.has(s.id)?'liked':''}" onclick="toggleFavorite(${s.id})" aria-label="Guardar">${favorites.has(s.id)?'♥':'♡'}</button><span class="duration">${fmt(s.duration)}</span><button onclick="playTrack(${originalIndex})" aria-label="Reproducir">▶</button></div></div>`;
+  }
+
+  function renderSongs() {
+    const q = getQuery();
+    const filtered = songs.filter(s => [s.title, s.artist, s.album, s.genre].some(v => v.toLowerCase().includes(q)));
+    document.getElementById('trackList').innerHTML = filtered.map((s, i) => trackRow(s, i)).join('');
+    document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
+    document.getElementById('songHeading').textContent = q ? `Resultados para "${document.getElementById('searchInput').value.trim()}"` : 'Canciones en SoundNest';
+    document.getElementById('songCountBadge').textContent = `${filtered.length} CANCIONES`;
+    renderFavorites();
+  }
+
+  function renderFavorites() {
+    const list = songs.filter(s => favorites.has(s.id));
+    document.getElementById('favoriteList').innerHTML = list.map((s, i) => trackRow(s, i)).join('');
+    document.getElementById('favoriteEmpty').style.display = list.length ? 'none' : 'block';
+  }
+
+  // ==========================================
+  // MODALES Y MUTACIONES (POST /playlists, /users, /auth/login)
+  // ==========================================
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function openPlaylistModal() {
+    updateUserUI();
+    setFormStatus('playlistFormStatus', null);
+    document.getElementById('playlistNameInput').value = '';
+    document.getElementById('playlistModal').classList.add('open');
+    setTimeout(() => document.getElementById('playlistNameInput').focus(), 50);
+  }
+
+  async function handleCreatePlaylist(event) {
+    event.preventDefault();
+    const name = document.getElementById('playlistNameInput').value.trim();
+    const btn = document.getElementById('playlistSubmitBtn');
+    if (!name) return;
+
+    btn.disabled = true;
+    setFormStatus('playlistFormStatus', 'loading', 'Guardando playlist en MySQL...');
+
+    try {
+      const response = await fetch('/playlists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, user_id: currentUser.user_id })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'No se pudo crear la playlist.');
+
+      setFormStatus('playlistFormStatus', 'success', '¡Playlist creada correctamente!');
+      mostrarNotificacion(`Playlist "${name}" guardada en MySQL`);
+      await cargarDatosDesdeAPI();
+      setTimeout(() => closeModal('playlistModal'), 700);
+    } catch (err) {
+      setFormStatus('playlistFormStatus', 'error', err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function openAuthModal(tab = 'login') {
+    switchAuthTab(tab);
+    document.getElementById('authModal').classList.add('open');
+  }
+
+  function switchAuthTab(tab) {
+    setFormStatus('authFormStatus', null);
+    const isLogin = tab === 'login';
+    document.getElementById('tabLogin').classList.toggle('active', isLogin);
+    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+  }
+
+  async function handleRegister(event) {
+    event.preventDefault();
+    const btn = document.getElementById('registerSubmitBtn');
+    const payload = {
+      first_name: document.getElementById('regFirstName').value.trim(),
+      last_name: document.getElementById('regLastName').value.trim() || null,
+      email: document.getElementById('regEmail').value.trim(),
+      password: document.getElementById('regPassword').value
+    };
+
+    btn.disabled = true;
+    setFormStatus('authFormStatus', 'loading', 'Creando cuenta y cifrando contraseña con bcrypt...');
+
+    try {
+      const response = await fetch('/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error al registrar usuario.');
+
+      currentUser = { user_id: data.user_id, first_name: payload.first_name, email: payload.email };
+      updateUserUI();
+      setFormStatus('authFormStatus', 'success', `¡Usuario registrado con ID ${data.user_id}! Sesión iniciada.`);
+      mostrarNotificacion(`Bienvenido, ${payload.first_name} (ID ${data.user_id})`);
+      document.getElementById('registerForm').reset();
+      setTimeout(() => closeModal('authModal'), 1000);
+    } catch (err) {
+      setFormStatus('authFormStatus', 'error', err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    const btn = document.getElementById('loginSubmitBtn');
+    const payload = {
+      email: document.getElementById('loginEmail').value.trim(),
+      password: document.getElementById('loginPassword').value
+    };
+
+    btn.disabled = true;
+    setFormStatus('authFormStatus', 'loading', 'Verificando credenciales contra hash bcrypt...');
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Credenciales incorrectas.');
+
+      currentUser = data.user;
+      updateUserUI();
+      setFormStatus('authFormStatus', 'success', `¡Hola de nuevo, ${data.user.first_name}!`);
+      mostrarNotificacion(`Sesión iniciada como ${data.user.first_name}`);
+      document.getElementById('loginForm').reset();
+      setTimeout(() => closeModal('authModal'), 900);
+    } catch (err) {
+      setFormStatus('authFormStatus', 'error', err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ==========================================
+  // REPRODUCTOR Y FAVORITOS
+  // ==========================================
+  function playTrack(index) {
+    if (index < 0 || index >= songs.length) return;
+    currentIndex = index; isPlaying = true;
+    const s = songs[index];
+    document.getElementById('playerTitle').textContent = s.title;
+    document.getElementById('playerArtist').textContent = s.artist;
+    document.getElementById('playerCover').textContent = s.emoji;
+    document.getElementById('playerCover').style.background = s.color;
+    document.getElementById('totalTime').textContent = fmt(s.duration);
+    document.getElementById('currentTime').textContent = '0:00';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('playButton').textContent = 'Ⅱ';
+    document.getElementById('playerHeart').textContent = favorites.has(s.id) ? '♥' : '♡';
+    renderSongs();
+  }
+  function togglePlay() { if (currentIndex < 0) { playTrack(0); return; } isPlaying = !isPlaying; document.getElementById('playButton').textContent = isPlaying ? 'Ⅱ' : '▶'; }
+  function nextTrack() { playTrack((currentIndex + 1 + songs.length) % songs.length); }
+  function previousTrack() { playTrack((currentIndex - 1 + songs.length) % songs.length); }
+  function toggleFavorite(id) {
+    if (favorites.has(id)) { favorites.delete(id); mostrarNotificacion('Canción eliminada de favoritos', 'error'); }
+    else { favorites.add(id); mostrarNotificacion('Canción guardada en favoritos'); }
+    renderSongs();
+    if (currentIndex >= 0) document.getElementById('playerHeart').textContent = favorites.has(songs[currentIndex].id) ? '♥' : '♡';
+  }
+  function toggleCurrentFavorite() { if (currentIndex >= 0) toggleFavorite(songs[currentIndex].id); }
+  function playAlbum(title) { const i = songs.findIndex(s => s.album === title); if (i >= 0) playTrack(i); }
+
+  function setView(view) {
+    document.querySelectorAll('.nav-item[data-target]').forEach(b => b.classList.toggle('active', b.dataset.target === view));
+    const target = document.getElementById(view);
+    if (target) target.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+
+  document.querySelectorAll('.nav-item[data-target]').forEach(b => b.addEventListener('click', () => setView(b.dataset.target)));
+  document.getElementById('searchInput').addEventListener('input', () => {
+    renderAll();
+  });
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setView('canciones');
+    }
+  });
+
+  // Cerrar modales al hacer clic fuera de la caja
+  document.querySelectorAll('.modal-backdrop').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+  });
+
+  updateUserUI();
+  cargarDatosDesdeAPI();
+</script>
+</body>
+</html>
